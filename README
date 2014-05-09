@@ -1,0 +1,44 @@
+  ____      _   _       _ _ ____ _____ 
+ / ___|__ _| |_| |_ ___| | |  _ \_   _|
+| |   / _` | __| __/ _ \ | | |_) || |  
+| |__| (_| | |_| ||  __/ | |  _ < | |  
+ \____\__,_|\__|\__\___|_|_|_| \_\|_|  
+
+
+This is a simple command line demo of my raytracer, with my glut-based sequence viewer removed. While I was at it, I detached it from Visual Studio and wrote a make file so that it is more portable.
+
+--------------------------------
+
+INSTRUCTIONS:
+
+To compile, just call 'make' from the root directory.
+
+The program takes one argument, which is the path of the scene file to be rendered. I included some default scene files in the scene subfolder.
+
+An example call would be:
+./BlueSkyRaytracerDemo scenes/CornellBoxDefault.txt
+
+All exported images will be in the 'output' subfolder.
+
+--------------------------------
+
+FEATURES:
+
+Stratifed soft shadows, physically-based depth of field, reflections, textures, anti-aliasing, TIFF encoding, BMP decoding, and support for transformation matrices in scene files.
+
+--------------------------------
+
+CAVEATS:
+
+- It does not yet use a BVH, so it only gets N^2 performance with the triangle hit algorithm.
+- It's not multithreaded.
+- This was my first large C++ program, so I didn't adhere as well as I could have to standard C++ style. 
+
+--------------------------------
+
+DISCLAIMER:
+
+All code is my own, except for the following exceptions:
+1. The two vector and matrix classes in MathUtil use some code given to us by my Stanford graphics course.
+2. Scene::Parse() is based on code given to us in this same course, which allows the program to be compatible with example scene files from some Stanford graphics classes.
+
