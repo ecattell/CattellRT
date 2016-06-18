@@ -5,7 +5,7 @@
  \____\__,_|\__|\__\___|_|_|_| \_\|_|  
 
 
-This is a simple command line demo of my raytracer, with my glut-based sequence viewer removed. While I was at it, I detached it from Visual Studio and wrote a make file so that it is more portable.
+This is a simple command line demo of my raytracer, with my glut-based sequence viewer removed.
 
 --------------------------------
 
@@ -16,7 +16,7 @@ To compile, just call 'make' from the root directory.
 The program takes one argument, which is the path of the scene file to be rendered. I included some default scene files in the scene subfolder.
 
 An example call would be:
-./BlueSkyRaytracerDemo scenes/CornellBoxDefault.txt
+./RaytracerDemo scenes/CornellBoxDefault.txt
 
 All exported images will be in the 'output' subfolder.
 
@@ -32,7 +32,7 @@ CAVEATS:
 
 - It does not yet use a BVH, so it only gets N^2 performance with the triangle hit algorithm.
 - It's not multithreaded.
-- This was my first large C++ program, so I didn't adhere as well as I could have to standard C++ style. 
+- This was my first large C++ program, so I didn't adhere as well as I could have to standard conventions. 
 
 --------------------------------
 

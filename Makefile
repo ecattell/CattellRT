@@ -3,7 +3,7 @@ CC = g++
 WARN = -Wall
 CCFLAGS = -c $(WARN)
 LDFLAGS =
-EXECUTABLE = BlueSkyRaytracerDemo
+EXECUTABLE = RaytracerDemo
 
 SRCS = $(wildcard src/Cameras/*.cpp src/ImagePlanes/*.cpp src/ImageUtil/*.cpp src/Lights/*.cpp src/Main/*.cpp src/Materials/*.cpp src/MathUtil/*.cpp src/Objects/*.cpp src/Ray/*.cpp src/Sequence/*.cpp src/Scene/*.cpp src/Shapes/*.cpp src/Transform/*.cpp)
 
