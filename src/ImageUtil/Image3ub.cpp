@@ -63,8 +63,14 @@ Color3f Image3ub::Interpolate(float u, float v) const
 {
 
     // Check that the (u,v) coordinates are in range.
-    assert(u >= 0 && u <= 1);
-    assert(v >= 0 && v <= 1);
+    // assert(u >= 0 && u <= 1);
+    // assert(v >= 0 && v <= 1);
+    
+    // Force uv cordinates to be in range. Floating point rounding errors were causing those assertions to be thrown under rare circumstances.
+	if (u > 1) { u = 1; }
+	if (u < 0) { u = 0; }
+	if (v > 1) { v = 1; }
+	if (v < 0) { v = 0; }
 
 	float x = u*mWidth;
 	float y = v*mHeight;
