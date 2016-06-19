@@ -16,7 +16,7 @@ To compile, just call 'make' from the root directory.
 The program takes one argument, which is the path of the scene file to be rendered. I included some default scene files in the scene subfolder.
 
 An example call would be:
-./RaytracerDemo scenes/CornellBoxDefault.txt
+./RaytracerDemo scenes/CornellBoxDefault_LQ.txt
 
 All exported images will be in the 'output' subfolder.
 
