@@ -1,5 +1,5 @@
 Camera   0 0 40   0 1 0   0 0 9.9  36.5   1
-Output   512   512   output/CornellBoxWood.tif
+Output   512   512   output/CornellBox.tif
 BounceDepth   1
 ShadowBias 0.005
 
@@ -12,12 +12,12 @@ PointLight   0 9 0   1 1 1
 ## The Box ##
 
 Material   1 1 1   0.8 0.8 0.8   .15 .15 .15   .08 .08 .08   .8
-Texture Diffuse wood.bmp
-Texture Ambient wood.bmp
+Texture Diffuse textures/wood.bmp
+Texture Ambient textures/wood.bmp
 
 # Floor
-MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0
-MTriangle   10 -10 10   10 -10 -10   -10 -10 10   1 1  1 0  0 1
+Triangle   -10 -10 10   10 -10 -10   -10 -10 -10
+Triangle   10 -10 10   10 -10 -10   -10 -10 10
 
 Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   0
 

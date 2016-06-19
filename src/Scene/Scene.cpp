@@ -651,7 +651,7 @@ const Color3f Scene::Shade(const Intersection * i, Ray& viewingRay, short numRef
 	{
 		Vec3f reflectDir = reflectVec(viewingRay.d,i->normal);
 		Ray reflectRay = Ray(Pnt3f(i->loc), reflectDir, bias, FLT_MAX); // TODO: Can I do this without defining a new point here?
-		resultColor = TraceRay(reflectRay,numReflections++)*m->getRefl(i->u,i->v);
+		resultColor += TraceRay(reflectRay,numReflections++)*m->getRefl(i->u,i->v);
 	}
 	return resultColor;
 }

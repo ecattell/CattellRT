@@ -27,6 +27,9 @@ Pnt3f AreaLight::getRandomPos(int j, int k) const
 	return lightCorner + vec1*s + vec2*t;
 }
 
+// Chooses a new random sample given an index in the area light
+// This position is used for getDist and getDir.
+// This might pose some issue when multithreading.
 void AreaLight::updateSample(int j, int k)
 {
 	float s = numSamplesInverse*j+randFloat()*numSamplesInverse;
