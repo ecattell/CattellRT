@@ -7,6 +7,7 @@
 
 #include "RTUtil.h"
 #include "Vec3f.h"
+#include "Vec2f.h"
 #include "Matrix4f.h"
 
 #endif  // __ST_H__

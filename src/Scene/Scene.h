@@ -52,7 +52,7 @@ public:
 
 	void Save(const Image3ub& image, const std::string&);
 		
-	// Bounce depth
+	// Reflection bounce depth
 	int depth; 
 
 	// Shadow bias
@@ -60,6 +60,10 @@ public:
 
 	// Antialiasing
 	short AASamples;
+
+	// GI
+	short GISamples;
+	int giDepth;
 
 	// Contains sequence information
 	Sequence seq;
@@ -70,9 +74,11 @@ public:
 private:
 
 	Intersection* Intersect(const Ray& r);
-	const Color3f Shade(const Intersection*, Ray&, short);
-	const Color3f TraceRay(Ray&, short);
+	const Color3f Shade(const Intersection*, Ray&, short, short);
+	const Color3f TraceRay(Ray&, short, short);
 	const Color3f getLightColorContribution(const Intersection*, Light&, Ray&);
+	const Color3f addGIComponent(const Intersection*, short numReflections, short giBounces);
+
 	Color3f calcDiffuse(const Color3f&, const Color3f&, Vec3f, Vec3f);
 	Color3f calcSpec(const Color3f&, const Color3f&, float, Vec3f, Vec3f, Vec3f);
 	
@@ -95,8 +101,10 @@ private:
 	void ParsedRackFocus(const Pnt3f& start, const Pnt3f& end);
 	void ParsedOutput(int imgWidth, int imgHeight, const std::string& outputFilename);
 	void ParsedBounceDepth(int depth);
+	void ParsedGIDepth(int giDepth);
 	void ParsedShadowBias(float bias);
 	void ParsedAASamples(short samples);
+	void ParsedGISamples(short samples);
 	void ParsedPushMatrix();
 	void ParsedPopMatrix();
 	void ParsedRotate(float rx, float ry, float rz);
@@ -109,7 +117,7 @@ private:
 	void ParsedPointLight(const Pnt3f& loc, const Color3f& col);
 	void ParsedDirectionalLight(const Vec3f& dir, const Color3f& col);
 	void ParsedAreaLight(const Pnt3f& loc, const Vec3f& v1, const Vec3f& v2, const Color3f& col, short numSamples, float falloff);
-	void ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, float shine);
+	void ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, const Color3f& radiosity, float shine);
 	void ParsedTexture(const string textureType, const string textureFileName);
 
 	// Instance variables

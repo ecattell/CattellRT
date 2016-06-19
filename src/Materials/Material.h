@@ -20,11 +20,10 @@ class Material
 {
 public:
 	Material();
-	Material(float, float, float, float, float, float, float, float, float, float, float, float, float);
-	Material(const Color3f&, const Color3f&, const Color3f&, const Color3f&, float);
+	Material(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float);
+	Material(const Color3f&, const Color3f&, const Color3f&, const Color3f&, const Color3f&, float);
 
 	// TODO: Delete this. I implemented this in scene instead.
-	//const Color3f shading(const Intersection, const Vec3f, const vector<Light> &);
 
 	virtual ~Material(void);
 
@@ -37,6 +36,8 @@ public:
 
 	void setReflTex(Image3ub* reflTex);
 
+	void setRadTex(Image3ub* redTex);
+
 	// Get colors values at given uv coordinates
 	Color3f getAmb(float u, float v) const;
 
@@ -46,15 +47,17 @@ public:
 
 	Color3f getRefl(float u, float v) const;
 
+	Color3f getRadiosity(float u, float v) const;
+
 	float getShine();
 
 private:
 	
 	void initializeDefaultTextures();
 
-	Color3f a, d, s, r;
+	Color3f a, d, s, r, rad;
 	
-	Image3ub *aTex, *dTex, *sTex, *rTex;
+	Image3ub *aTex, *dTex, *sTex, *rTex, *radTex;
 
 	float shine;
 

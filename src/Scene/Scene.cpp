@@ -75,6 +75,18 @@ void Scene::Parse(std::string sceneFilename)
 			ss >> depth;
 			ParsedBounceDepth(depth);
 		}
+		else if (command == "GIDepth")
+		{
+			int giDepth;
+			ss >> giDepth;
+			ParsedGIDepth(giDepth);
+		}
+		else if (command == "GISamples")
+		{
+			short samples;
+			ss >> samples;
+			ParsedGISamples(samples);
+		}
 		else if (command == "ShadowBias")
 		{
 			float bias;
@@ -176,13 +188,14 @@ void Scene::Parse(std::string sceneFilename)
 		}
 		else if (command == "Material")
 		{
-			float ra, ga, ba, rd, gd, bd, rs, gs, bs, rr, gr, br, shine;
-			ss >> ra >> ga >> ba >> rd >> gd >> bd >> rs >> gs >> bs >> rr >> gr >> br >> shine;
+			float ra, ga, ba, rd, gd, bd, rs, gs, bs, rr, gr, br, rRad, gRad, bRad, shine;
+			ss >> ra >> ga >> ba >> rd >> gd >> bd >> rs >> gs >> bs >> rr >> gr >> br >> rRad >> gRad >> bRad >> shine;
 			Color3f amb(ra, ga, ba);
 			Color3f diff(rd, gd, bd);
 			Color3f spec(rs, gs, bs);
 			Color3f mirr(rr, gr, br);
-			ParsedMaterial(amb, diff, spec, mirr, shine);
+			Color3f radiosity(rRad, gRad, bRad);
+			ParsedMaterial(amb, diff, spec, mirr, radiosity, shine);
 		}
 		else if (command == "Texture")
 		{
@@ -260,6 +273,11 @@ void Scene::ParsedBounceDepth(int _depth)
 	depth = _depth;
 }
 
+void Scene::ParsedGIDepth(int _giDepth)
+{
+	giDepth = _giDepth;
+}
+
 void Scene::ParsedShadowBias(float _bias)
 {
 	bias = _bias;
@@ -268,6 +286,11 @@ void Scene::ParsedShadowBias(float _bias)
 void Scene::ParsedAASamples(short samples)
 {
 	AASamples = samples;
+}
+
+void Scene::ParsedGISamples(short samples)
+{
+	GISamples = samples;
 }
 
 void Scene::ParsedPushMatrix()
@@ -340,9 +363,9 @@ void Scene::ParsedAreaLight(const Pnt3f& loc, const Vec3f& v1, const Vec3f& v2, 
 	areaLights.push_back(AreaLight(loc, v1, v2, col, numSamples, falloff));
 }
 
-void Scene::ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, float shine)
+void Scene::ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, const Color3f& radiosity, float shine)
 {
-	Material* mat = new Material(amb,diff,spec,mirr,shine);
+	Material* mat = new Material(amb,diff,spec,mirr,radiosity,shine);
 	materials.push_back(mat);
 
 }
@@ -372,6 +395,10 @@ void Scene::ParsedTexture(const string textureType, const string textureFileName
 	else if (textureType == "Reflective")
 	{
 		materials.back()->setReflTex( textures.add(textureFileName) );
+	}
+	else if (textureType == "Radiosity")
+	{
+		materials.back()->setRadTex( textures.add(textureFileName) );
 	}
 	else
 	{
@@ -454,7 +481,7 @@ void Scene::RenderFrame()
 			if (AASamples <= 1 && cam.DOF == false)
 			{
 				Ray viewRay = cam.generateViewRay(x,y);
-				Color3f traceCol = TraceRay(viewRay,0);
+				Color3f traceCol = TraceRay(viewRay,0,0);
 				image.SetPixel(x,y,Color3ub(traceCol));
 			}
 			else
@@ -478,14 +505,14 @@ void Scene::RenderFrame()
 						// Generate extra samples for DOF
 						Ray viewRay = cam.generateViewRay(xPrime,yPrime);
 
-						if (cam.DOF == false) c += TraceRay(viewRay,0);
+						if (cam.DOF == false) c += TraceRay(viewRay,0,0);
 						else {
 							for (int i = 0; i < cam.getSamples(); i++)
 							{
 								for (int j = 0; j < cam.getSamples(); j++)
 								{
 									Ray DOFRay = cam.defocusRay(viewRay,i,j);
-									c += TraceRay(DOFRay,0);
+									c += TraceRay(DOFRay,0,0);
 								}
 							}
 						}
@@ -505,13 +532,13 @@ void Scene::RenderFrame()
 
 // Traces a viewing ray for a single sample in the image plane.
 // Also invoked for computing recursive reflections.
-const Color3f Scene::TraceRay(Ray& r, short numReflections)
+const Color3f Scene::TraceRay(Ray& r, short numReflections, short giBounces)
 {
 
 	Intersection* i = Intersect(r);
 	if (i != NULL)
 	{	
-		Color3f returnColor = Shade(i,r,numReflections); // Color3f(i->normal.x,i->normal.y,i->normal.z);//
+		Color3f returnColor = Shade(i,r,numReflections, giBounces); // Color3f(i->normal.x,i->normal.y,i->normal.z);//
 		delete i;
 		return returnColor; 
 	}
@@ -594,7 +621,7 @@ const Color3f Scene::getLightColorContribution(const Intersection * i, Light& li
 }
 
 // set pixel color to value computed from point, lights, viewing direction, and normal
-const Color3f Scene::Shade(const Intersection * i, Ray& viewingRay, short numReflections)
+const Color3f Scene::Shade(const Intersection * i, Ray& viewingRay, short numReflections, short giBounces=1)
 {
 
 	Material* m = i->obj->m;
@@ -651,11 +678,96 @@ const Color3f Scene::Shade(const Intersection * i, Ray& viewingRay, short numRef
 	{
 		Vec3f reflectDir = reflectVec(viewingRay.d,i->normal);
 		Ray reflectRay = Ray(Pnt3f(i->loc), reflectDir, bias, FLT_MAX); // TODO: Can I do this without defining a new point here?
-		resultColor += TraceRay(reflectRay,numReflections++)*m->getRefl(i->u,i->v);
+		resultColor += TraceRay(reflectRay,numReflections++,giBounces)*m->getRefl(i->u,i->v);
 	}
+	
+	// Calculate GI
+	resultColor += addGIComponent(i, numReflections, giBounces);
+	
 	return resultColor;
 }
 
+const Vec2f Random2DDir()
+{
+	float azimuth = randFloat() * M_PI * 2;
+	return Vec2f(cos(azimuth), sin(azimuth));
+}
+
+// Should provide uniform distribution
+const Vec3f randomUnitVector()
+{
+	float z = (2*randFloat()) - 1; // z is in the range [-1,1]
+	Vec2f planar = Random2DDir() * sqrt(1-z*z);
+	return Vec3f(planar.x, planar.y, z);
+}
+
+const Vec3f randomInHemisphere(Vec3f const &v){
+	Vec3f resultVec = randomUnitVector();
+	
+	// If the resulting vector is pointing in the opposite direction, flip it
+	if(Vec3f::Dot(v,resultVec)<0){
+		resultVec.x= -resultVec.x;
+		resultVec.y= -resultVec.y;
+		resultVec.z= -resultVec.z;
+	}
+	return resultVec;
+}
+
+const Color3f Scene::addGIComponent(const Intersection * intersect, short numReflections, short giBounces)
+{
+	if (giBounces < giDepth) {
+		giBounces++;
+
+		Color3f giColor = Color3f(0.0,0.0,0.0);
+		Material* m = intersect->obj->m;
+		Color3f radiosity = m->getRadiosity(intersect->u,intersect->v);
+	 
+		// cout << radiosity.r;
+		// cout << radiosity.g;
+		// cout << radiosity.b;
+		
+		// Get normal at hit
+		Vec3f hitNormal = intersect->normal;
+		
+		Color3f bouncedLight = Color3f(0.0,0.0,0.0);
+		// for each sample
+		for (int i = 0; i < GISamples; i++)
+		{
+			//Get random direction in same hemisphere as normal
+			Vec3f dir = randomInHemisphere(hitNormal);			
+			Ray r = Ray ( intersect->loc, dir, bias, FLT_MAX );
+			bouncedLight += TraceRay(r, numReflections, giBounces);
+		}
+		bouncedLight = bouncedLight / GISamples;
+		
+		return radiosity*bouncedLight;
+	}
+	else {
+		// Return black if max giBounces reached
+		return Color3f(0.0,0.0,0.0);
+	}
+	
+	/*
+	//TODO
+	if (emittance > Color3f(FLT_EPSILON,FLT_EPSILON,FLT_EPSILON))
+	{
+		// Pick a random direction from here and keep going.
+		Ray newRay;
+		newRay.origin = r.pointWhereObjWasHit;
+		newRay.direction = RandomUnitVectorInHemisphereOf(r.normalWhereObjWasHit);  // This is NOT a cosine-weighted distribution!
+	   
+		// Compute the BRDF for this ray (assuming Lambertian reflection)
+		float cos_theta = DotProduct(newRay.direction, r.normalWhereObjWasHit);
+		Color BRDF = 2 * m.reflectance * cos_theta;
+		Color reflected = TracePath(newRay, depth + 1);
+		
+		// Apply the Rendering Equation here.
+		result = emittance + (BRDF * reflected);
+	}
+	return giColor;
+	*/
+
+}
 
 Color3f Scene::calcDiffuse(const Color3f& lightColor, const Color3f& diffuse, Vec3f Lm, Vec3f normal)
 {
