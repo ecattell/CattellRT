@@ -1,5 +1,5 @@
 Camera   0 0 40   0 1 0   0 0 9.9  36.5   1
-Output   4   4   output/CornellBoxTexture2.tif
+Output   720   720   output/CornellBoxTexture2.tif
 BounceDepth   1
 ShadowBias 0.005
 
@@ -12,11 +12,11 @@ PointLight   0 9 0   1 1 1
 ## The Box ##
 
 Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   0
-Texture Diffuse test6.bmp
+Texture Diffuse textures/texture.bmp
 
 # Floor
 MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0
-MTriangle   10 -10 10   10 -10 -10   -10 -10 10   1 1  1 0  0 1
+MTriangle    10 -10 10   10 -10 -10   -10 -10  10   1 1  1 0  0 1
 
 Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   0
 

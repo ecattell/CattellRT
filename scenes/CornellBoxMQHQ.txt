@@ -29,7 +29,7 @@ Texture Ambient textures/wood.bmp
 
 # Floor
 MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0
-MTriangle   10 -10 10   10 -10 -10   -10 -10 10   1 1  1 0  0 1
+MTriangle    10 -10 10   10 -10 -10   -10 -10  10   1 1  1 0  0 1
 
 Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   0
 
