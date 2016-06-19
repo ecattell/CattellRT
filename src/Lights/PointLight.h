@@ -15,7 +15,8 @@ public:
 	PointLight(const Pnt3f&, const Color3f&);
 	PointLight(float, float, float, const Color3f&);
 	virtual ~PointLight(void);
-	const virtual Vec3f getDir(const Pnt3f&);
+	const Vec3f getDir(const Pnt3f&);
+	const float getDist(const Pnt3f&);
 	Pnt3f loc;
 
 private:

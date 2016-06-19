@@ -18,6 +18,10 @@ public:
 	~AreaLight(void);
 	Pnt3f getRandomPos(int i, int k) const;
 	short getNumSamples() const;
+	void updateSample(int j, int k);
+	
+	const Vec3f getDir(const Pnt3f&);
+	const float getDist(const Pnt3f&);
 
 	// Controls how quickly light falls off over distance
 	float falloff;
@@ -33,6 +37,8 @@ private:
 	// Vector forming second edge of parallelogram
 	Vec3f vec2;
 
+	// Sample location. Resets when updateSample run
+	Pnt3f loc;
 	short numSamples;
 	float numSamplesInverse; // Precomputed and used for stratified sampling. This is essentially the width/height of a sample area along the vector
 };

@@ -24,3 +24,9 @@ const Vec3f DirectionalLight::getDir()
 {
 	return inverseDirection;
 }
+
+// given a surface point, returns the distance to the point.
+const float DirectionalLight::getDist(const Pnt3f& p)
+{
+	return FLT_MAX;
+}

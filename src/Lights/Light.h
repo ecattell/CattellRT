@@ -19,6 +19,8 @@ protected:
 public:
 	virtual ~Light(void);
 	Color3f color;
+	const virtual Vec3f getDir(const Pnt3f&);//  = 0;
+	const virtual float getDist(const Pnt3f&);// = 0;
 
 }; 
 

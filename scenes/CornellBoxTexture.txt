@@ -12,7 +12,7 @@ PointLight   0 9 0   1 1 1
 ## The Box ##
 
 Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   0
-Texture Diffuse ../../../textures/test6.bmp
+Texture Diffuse test6.bmp
 
 # Floor
 MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0

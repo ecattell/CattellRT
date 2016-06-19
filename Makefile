@@ -1,7 +1,11 @@
+# This is the makefile for my raytracer
+# Let me know if this runs into any issues on your system
+
 CC = g++
 
 WARN = -Wall
 CCFLAGS = -c $(WARN)
+
 LDFLAGS =
 EXECUTABLE = RaytracerDemo
 
@@ -14,7 +18,7 @@ OBJS  = $(addprefix obj/, $(subst /,_, $(subst src/,,$(SRCS:.cpp=.o))))
 all: main
 
 # Link
-mkdirs: /bin/mkdir -p bin obj
+mkdirs: /bin/mkdir -p bin obj output
 
 main: $(SRCS) $(EXECUTABLE)
 	@echo "Linking $(EXECUTABLE)"
@@ -79,4 +83,4 @@ clean:
 	rm -f obj/* $(EXECUTABLE)
 
 cleanall:
-	rm -f obj/* output/*
+	rm -f obj/* output/* $(EXECUTABLE)

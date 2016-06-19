@@ -1,6 +1,8 @@
 #ifndef __DIRECTIONALLIGHT_H__
 #define __DIRECTIONALLIGHT_H__
 
+#include <float.h>
+
 #include "Light.h"
 #include "../MathUtil/Vec3f.h"
 
@@ -14,8 +16,9 @@ class DirectionalLight :
 public:
 	DirectionalLight(const Vec3f&, const Color3f&);
 	virtual ~DirectionalLight(void);
-	const virtual Vec3f getDir(const Pnt3f&);
+	const Vec3f getDir(const Pnt3f&);
 	const Vec3f getDir();
+	const float getDist(const Pnt3f&);
 
 private:
 	// Direction of light

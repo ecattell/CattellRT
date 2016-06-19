@@ -72,6 +72,7 @@ private:
 	Intersection* Intersect(const Ray& r);
 	const Color3f Shade(const Intersection*, Ray&, short);
 	const Color3f TraceRay(Ray&, short);
+	const Color3f getLightColorContribution(const Intersection*, Light&, Ray&);
 	Color3f calcDiffuse(const Color3f&, const Color3f&, Vec3f, Vec3f);
 	Color3f calcSpec(const Color3f&, const Color3f&, float, Vec3f, Vec3f, Vec3f);
 	

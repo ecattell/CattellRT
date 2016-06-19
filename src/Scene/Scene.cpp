@@ -425,7 +425,7 @@ void Scene::printProgress(int startTime, int x, int w)
 	cout << gap1 << "Elapsed: " << minElapsed << "m " << secElapsed << "s" << gap2 << " Est remaining: " << minutes << " m " << seconds << "s" << "\n";
 }
 
-// Loops over all samples of the image plane and computes a color for each one
+// Loops over all samples of the image plane and computes a color for each pixel
 void Scene::RenderFrame()
 {
 
@@ -435,7 +435,7 @@ void Scene::RenderFrame()
 	int w = plane.getWidthSamples();
 	int h = plane.getHeightSamples();
 
-	Image3ub image = Image3ub(w,h,Color3ub(ERROR_COLOR)); // TODO test color for background should be constant
+	Image3ub image = Image3ub(w,h,Color3ub(ERROR_COLOR));
 
 	int startTime = time(NULL);
 	int prevProgressOutput = startTime;
@@ -443,7 +443,7 @@ void Scene::RenderFrame()
 	for (int x = 0; x < w; x++)
 	{
 		int currTime = time(NULL);
-		if ((currTime - prevProgressOutput > 10))//(x%20 == 10) // Print progress
+		if ((currTime - prevProgressOutput > 10)) // Print progress
 		{
 			prevProgressOutput = currTime;
 			printProgress(startTime, x, w);
@@ -552,7 +552,45 @@ Intersection* Scene::Intersect(const Ray& r)
 		else delete currIntersect;
 	}
 	return i;
+}
 
+// Calculates the color contribution of the given light
+const Color3f Scene::getLightColorContribution(const Intersection * i, Light& light, Ray& viewingRay)
+{
+	Pnt3f intersectPnt  = i->loc;
+	
+	Vec3f lightDir = light.getDir(intersectPnt);
+	if (SameDirection(lightDir,i->normal))
+	{
+		// Ignore this light if normal and light are pointed in opposite directions.
+		return Color3f(0.0,0.0,0.0);
+	}
+	else
+	{
+		// Get distance to light
+		// Note: This is slightly inefficient, as this operation has some redundancy with light->getDir().
+		float lightDist  = light.getDist(intersectPnt);
+		
+		Ray toLight = Ray(intersectPnt, lightDir, bias, lightDist);
+		
+		// Check if the light is not blocked by another object.
+		Intersection* toLightIntersect = Intersect(toLight);
+		
+		Color3f resultColor = Color3f(0.0,0.0,0.0);
+		
+		if (toLightIntersect == NULL)
+		{
+			Material* m = i->obj->m;
+			Vec3f Lm = toLight.d;
+			Lm.Normalize(); // TODO optimization: Is this already normalized?
+			Color3f lightColor = light.color;
+			resultColor += calcDiffuse(lightColor, m->getDif(i->u,i->v), Lm, i->normal);
+			resultColor += calcSpec(lightColor, m->getSpec(i->u,i->v), m->getShine(), viewingRay.d, Lm, i->normal);
+		}	
+		else delete toLightIntersect;
+		
+		return resultColor;
+	}
 }
 
 // set pixel color to value computed from point, lights, viewing direction, and normal
@@ -561,129 +599,61 @@ const Color3f Scene::Shade(const Intersection * i, Ray& viewingRay, short numRef
 
 	Material* m = i->obj->m;
 
-	Color3f ambient = Color3f(0.0,0.0,0.0);
-	Color3f diffuse = Color3f(0.0,0.0,0.0);
-	Color3f specular = Color3f(0.0,0.0,0.0);
-	Color3f reflect;
+	Color3f resultColor = Color3f(0.0,0.0,0.0);
 
 	// For each ambient light, add color
 	if (SameDirection(viewingRay.d,i->normal)){ // Cull backface objects
 		for(std::vector<AmbientLight>::iterator it = ambLights.begin(); it != ambLights.end(); ++it) {
-			ambient += it->color*m->getAmb(i->u,i->v);
+			resultColor += it->color*m->getAmb(i->u,i->v);
 		}
 	}
-	Pnt3f e = i->loc;
+	Pnt3f intersectPnt = i->loc;
 
 	// For each point light, calculate diffuse and specular
 	for(std::vector<PointLight>::iterator it = pntLights.begin(); it != pntLights.end(); ++it) {
-
-		// Get intersect position and direction of light
-		Vec3f d = it->getDir(e);
-
-		// Ignore this light if normal and light are pointed in opposite directions.
-		if (SameDirection(d,i->normal)) continue;
-
-		// Get position of light
-		Vec3f lightPos = it->loc;
-
-		// Check if the light is not blocked by another object.
-
-		// Create a ray to light
-		float distanceOfLight = Vec3f(e - lightPos).Length();
-		Ray toLight = Ray(e, d, bias, distanceOfLight);
-		Intersection* toLightIntersect = Intersect(toLight);
-		/////////////////////////////////////////////////////////////
-		if (toLightIntersect == NULL)
-		{
-			Material* m = i->obj->m;
-			Vec3f Lm = toLight.d;
-			Lm.Normalize(); // TODO optimization: Isn't this already normalized?
-			Color3f lightColor = it->color;
-			diffuse += calcDiffuse(lightColor, m->getDif(i->u,i->v), Lm, i->normal);
-			specular += calcSpec(lightColor, m->getSpec(i->u,i->v), m->getShine(), viewingRay.d, Lm, i->normal);
-		}	
-		else delete toLightIntersect;
-		//////////////////////////////////////////////////////////////
+		PointLight light = *it;
+		resultColor += getLightColorContribution(i, light, viewingRay);
 	}
 
+	// For each directional light, calculate diffuse and specular
 	for(std::vector<DirectionalLight>::iterator it = dirLights.begin(); it != dirLights.end(); ++it) {
-		Vec3f dir = it->getDir(e);;
-		Ray toLight = Ray(e, dir, bias, FLT_MAX);
-		Intersection* toLightIntersect = Intersect(toLight);
-		/////////////////////////////////////////////////////////////////
-		if (toLightIntersect == NULL)
-		{
-			Material* m = i->obj->m;
-			Vec3f Lm = toLight.d;
-			Lm.Normalize(); // TODO optimization: Isn't this already normalized?
-			Color3f lightColor = it->color;
-			diffuse += calcDiffuse(lightColor, m->getDif(i->u,i->v), Lm, i->normal);
-			specular += calcSpec(lightColor, m->getSpec(i->u,i->v), m->getShine(), viewingRay.d, Lm, i->normal);
-		}
-		else delete toLightIntersect;
-		//////////////////////////////////////////////////////////////////
+		DirectionalLight light = *it;
+		resultColor += getLightColorContribution(i, light, viewingRay);
 	}
+	
+	// For each area light, calculate diffuse and specular
 	for(std::vector<AreaLight>::iterator it = areaLights.begin(); it != areaLights.end(); ++it) {
 		// Component of lighting from this area light.
-		Color3f areaSpec = Color3f(0.f,0.f,0.f);
-		Color3f areaDiffuse = Color3f(0.f,0.f,0.f);
-
-
+		Color3f areaColor = Color3f(0.f,0.f,0.f);
+		AreaLight light = *it;
 		// TODO: I should implement jittered sampling like in my AASampler (Shirley page 312)
 		// Pass in two new color/specular N times where N is num samples
-		for (int j = 0; j < it->getNumSamples(); j++)
+		int numSamples = light.getNumSamples();
+		for (int j = 0; j < numSamples; j++)
 		{
-			for (int k = 0; k < it->getNumSamples(); k++)
+			for (int k = 0; k < numSamples; k++)
 			{
-				Pnt3f lightPos = it->getRandomPos(j,k);
-				Vec3f dir = lightPos-e;
-				float distanceOfLight = dir.Length();
-				dir.Normalize();
-				Ray toLight = Ray(e, dir, bias, distanceOfLight);
-
-				if (SameDirection(dir,i->normal)) continue;
-
-				Intersection* toLightIntersect = Intersect(toLight);
-				/////////////////////////////////////////////////////////////////////
-				// Check if anything intersects the ray between light and object
-				if (toLightIntersect == NULL)
-				{
-					Material* m = i->obj->m;
-					Vec3f Lm = toLight.d;
-					Lm.Normalize(); // TODO optimization: Isn't this already normalized?
-					Color3f lightColor = it->color;
-					areaDiffuse += calcDiffuse(lightColor, m->getDif(i->u,i->v), Lm, i->normal)/(distanceOfLight*it->falloff);
-					areaSpec += calcSpec(lightColor, m->getSpec(i->u,i->v), m->getShine(), viewingRay.d, Lm, i->normal)/(distanceOfLight*it->falloff);
-				}
-				else delete toLightIntersect;
-				//////////////////////////////////////////////////////////////////
+				light.updateSample(j,k);
+				areaColor += getLightColorContribution(i, light, viewingRay);
 			}
-		
-		
 		}
 		// Calculate average influence of each sample
-		areaSpec = areaSpec/(it->getNumSamples()*it->getNumSamples());
-		areaDiffuse = areaDiffuse/(it->getNumSamples()*it->getNumSamples());
+		areaColor = areaColor/(numSamples*numSamples);
 
 		// Add new light to total
-		specular += areaSpec;
-		diffuse += areaDiffuse;
+		resultColor += areaColor;
 	}
 
 	// Calculate reflectance
 	// EXPANSION TODO: I can examine roughness here and take multiple samples if I implement roughness.
-
 	Color3f reflectMaterial = m->getRefl(i->u,i->v);
 	if (numReflections < depth && RTMin(RTMin(reflectMaterial.r,reflectMaterial.g),reflectMaterial.b) > FLT_EPSILON) // 
 	{
 		Vec3f reflectDir = reflectVec(viewingRay.d,i->normal);
 		Ray reflectRay = Ray(Pnt3f(i->loc), reflectDir, bias, FLT_MAX); // TODO: Can I do this without defining a new point here?
-		reflect = TraceRay(reflectRay,numReflections++)*m->getRefl(i->u,i->v);
+		resultColor = TraceRay(reflectRay,numReflections++)*m->getRefl(i->u,i->v);
 	}
-	else
-		reflect = Color3f(0.0,0.0,0.0);
-
-	return ambient + diffuse + specular + reflect;
+	return resultColor;
 }
 
 
@@ -720,7 +690,6 @@ vector<string> Scene::Render(){
 
 void Scene::RenderSequence()
 {
-
 	string sequenceBaseFilename = string(outputFilename);
 	sequenceBaseFilename = sequenceBaseFilename.substr(0,sequenceBaseFilename.find("."));
 	//Pnt3f lookAtStart = Pnt3f(startLookX,startLookY,startLookZ);
