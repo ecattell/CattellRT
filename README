@@ -24,7 +24,7 @@ All exported images will be in the 'output' subfolder.
 
 FEATURES:
 
-Stratifed soft shadows, physically-based depth of field, reflections, textures, anti-aliasing, TIFF encoding, BMP decoding, and support for transformation matrices in scene files.
+Global illumination, stratifed soft shadows, physically-based depth of field, reflections, textures, anti-aliasing, TIFF encoding, BMP decoding, and support for transformation matrices in scene files.
 
 --------------------------------
 
