@@ -80,6 +80,7 @@ private:
 	const Color3f TraceRay(Ray&, short, short);
 	const Color3f getLightColorContribution(const Intersection*, Light&, Ray&);
 	const Color3f addGIComponent(const Intersection*, short numReflections, short giBounces);
+	const Vec3f refractVec(const Vec3f& viewingDir, const Vec3f& normal, float refractionIndex);
 
 	Color3f calcDiffuse(const Color3f&, const Color3f&, Vec3f, Vec3f);
 	Color3f calcSpec(const Color3f&, const Color3f&, float, Vec3f, Vec3f, Vec3f);
@@ -119,7 +120,7 @@ private:
 	void ParsedPointLight(const Pnt3f& loc, const Color3f& col);
 	void ParsedDirectionalLight(const Vec3f& dir, const Color3f& col);
 	void ParsedAreaLight(const Pnt3f& loc, const Vec3f& v1, const Vec3f& v2, const Color3f& col, short numSamples, float falloff);
-	void ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, const Color3f& radiosity, float shine);
+	void ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, const Color3f& radiosity, float shine, float refractIndex, float opacity);
 	void ParsedTexture(const string textureType, const string textureFileName);
 
 	// Instance variables

@@ -1,0 +1,117 @@
+Output   851   315   output/CornellBoxWoodGI_Light_fb.tif
+#          eye      upvec   look     fov    aspect ratio
+Camera   0 0 39   0 1 0   0 0 10  36.5    2.70158730159
+
+
+# numDOFSamples apertureSize, focPntX, focPntY, focPntZ
+Focus  4 1.5  0 0 3.5
+
+BounceDepth   1
+GIDepth       1
+ShadowBias 0.0005
+GISamples 64
+AASamples 2
+
+## Lights ##
+#          px,py,pz, v1x,v1y,v1z, v2x,v2y,v2z, numSamples, falloff, r, g, b
+AreaLight -3 9 -3     6 0 0          0 0 6      2           .08      .8 .8 .8
+#PointLight   0 9.5 0   1 1 1
+
+## The Box ##
+
+Material   1 1 1   0.8 0.8 0.8   .15 .15 .15   .08 .08 .08   1 1 1  .8
+Texture Diffuse textures/wood.bmp
+Texture Ambient textures/wood.bmp
+
+
+# Floor
+MTriangle   -27 -10 10   27 -10 -10   -27 -10 -10   0 1  1 0  0 0
+MTriangle    27 -10 10   27 -10 -10   -27 -10  10   1 1  1 0  0 1
+
+MTriangle   -27 -10 -10   27 -10 -30   -27 -10 -30   0 1  1 0  0 0
+MTriangle    27 -10 -10   27 -10 -30   -27 -10  -10   1 1  1 0  0 1
+
+MTriangle   -27 -10 30   27 -10 10   -27 -10  10   0 1  1 0  0 0
+MTriangle    27 -10 30   27 -10 10   -27 -10  30   1 1  1 0  0 1
+
+# Ceiling light
+Material   1 1 1     4 4 4   0 0 0     0 0 0      1 1 1          1
+#W1
+Triangle   -2 10 -2  2 10 -2  -2 10 2
+#W2
+Triangle   2 10 2    -2 10 2   2 10 -2
+
+# Ceiling
+#          ra,ga,ba, rd,gd,bd,     rs,gs,bs, rr,gr,br, rRad,gRad,bRad, shine
+Material   1 1 1     0.8 0.8 0.8   0 0 0     0 0 0      1 1 1          1
+#Triangle   -10 10 -30 10 10 -30 -10 10 30 
+#Triangle   -10 10 30 10 10 -30  10 10 30
+#A
+Triangle   -27 10 -30   27 10 -30 -27 10 -2
+#B
+Triangle   27 10 -30   27 10 -2    -27 10 -2
+#C
+Triangle   -27 10 -2    -2 10 -2   -27 10 2
+#D
+Triangle  -27 10 2     -2 10 -2    -2 10 2
+#E
+Triangle   2 10 -2   27 10 -2    2 10 2
+#F
+Triangle   27 10 -2    27 10 2    2 10 2
+#G
+Triangle   -27 10 2    27 10 2     -27 10 30
+#H
+Triangle   27 10 2   27 10 30    -27 10 30
+
+# A -2 10 2         C 2 10 2
+# B -2 10 -2        D 2 10 -2
+
+# Front wall
+Triangle   -27 -10 -30   27 10 -30   -27 10 -30
+Triangle   27 -10 -30   27 10 -30   -27 -10 -30
+
+# Red wall
+Material   1 0 0   1 0 0   0 0 0   0 0 0   1 1 1   0
+Triangle   -27  10 30   -27 -10 -30   -27 10 -30
+Triangle   -27 -10 30   -27 -10 -30   -27 10 30
+
+# Blue wall
+Material   0 0 1   0 0 1   0 0 0   0 0 0   1 1 1   0
+Triangle   27 -10 30   27 10 -30   27 -10 -30
+Triangle   27 10 30   27 10 -30   27 -10 30
+
+
+
+## Stuff in the box ##
+
+# Plastic Sphere
+Material   1 1 1   1 0 1   1 1 1   0 0 0   1 1 1   128
+Sphere   0 -5 1   5
+
+# Diffuse Sphere
+Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   1
+Sphere   -15 -5 -5   5
+
+# Mirror Sphere
+Material   1 1 1   0 0 0    .1 .1 .1   0.9 0.9 0.9   0 0 0  64
+Sphere   15 -5 1   5
+
+Material   1 1 1   0.8 0.8 0.8   .15 .15 .15   .08 .08 .08   1 1 1  .8
+
+
+
+## Diamond ##
+
+Translate 0 2.5 1
+Material   1 1 1   1 1 1   1 1 1   0 0 0   1 1 1   128
+
+# front
+Triangle 0 0 2   0 2.5 0    -2 0 0
+Triangle -2 0 0   0 -2.5 0   0 0 2
+Triangle 0 -2.5 0   2 0 0    0 0 2   
+Triangle 0 0 2  2 0 0      0 2.5 0
+# back
+Triangle -2 0 0   0 0 -2   0 2.5 0
+Triangle -2 0 0   0 -2.5 0   0 0 -2  
+Triangle 0 -2.5 0   2 0 0   0 0 -2   
+Triangle 0 0 -2   2 0 0    0 2.5 0

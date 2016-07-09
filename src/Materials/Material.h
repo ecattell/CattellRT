@@ -20,8 +20,8 @@ class Material
 {
 public:
 	Material();
-	Material(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float);
-	Material(const Color3f&, const Color3f&, const Color3f&, const Color3f&, const Color3f&, float);
+	Material(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float);
+	Material(const Color3f&, const Color3f&, const Color3f&, const Color3f&, const Color3f&, float, float, float);
 
 	// TODO: Delete this. I implemented this in scene instead.
 
@@ -49,18 +49,21 @@ public:
 
 	Color3f getRadiosity(float u, float v) const;
 
-	float getShine();
+	float getShine() const;
+	float getOpacity() const;
+	float getRefractionIndex() const;
 
 private:
-	
+
 	void initializeDefaultTextures();
 
 	Color3f a, d, s, r, rad;
-	
+
 	Image3ub *aTex, *dTex, *sTex, *rTex, *radTex;
 
 	float shine;
-
+	float opacity;
+	float refractionIndex;
 };
 
 #endif //__MATERIAL_H__

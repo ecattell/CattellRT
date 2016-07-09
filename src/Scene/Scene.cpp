@@ -193,7 +193,18 @@ void Scene::Parse(std::string sceneFilename)
 			Color3f spec(rs, gs, bs);
 			Color3f mirr(rr, gr, br);
 			Color3f radiosity(rRad, gRad, bRad);
-			ParsedMaterial(amb, diff, spec, mirr, radiosity, shine);
+			ParsedMaterial(amb, diff, spec, mirr, radiosity, shine, 1, 1);
+		}
+		else if (command == "rMaterial")
+		{
+			float ra, ga, ba, rd, gd, bd, rs, gs, bs, rr, gr, br, rRad, gRad, bRad, shine, refractIndex, opacity;
+			ss >> ra >> ga >> ba >> rd >> gd >> bd >> rs >> gs >> bs >> rr >> gr >> br >> rRad >> gRad >> bRad >> shine >> refractIndex >> opacity;
+			Color3f amb(ra, ga, ba);
+			Color3f diff(rd, gd, bd);
+			Color3f spec(rs, gs, bs);
+			Color3f mirr(rr, gr, br);
+			Color3f radiosity(rRad, gRad, bRad);
+			ParsedMaterial(amb, diff, spec, mirr, radiosity, shine, refractIndex, opacity);
 		}
 		else if (command == "Texture")
 		{
@@ -367,9 +378,9 @@ void Scene::ParsedAreaLight(const Pnt3f& loc, const Vec3f& v1, const Vec3f& v2, 
 	areaLights.push_back(AreaLight(loc, v1, v2, col, numSamples, falloff));
 }
 
-void Scene::ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, const Color3f& radiosity, float shine)
+void Scene::ParsedMaterial(const Color3f& amb, const Color3f& diff, const Color3f& spec, const Color3f& mirr, const Color3f& radiosity, float shine, float refractIndex, float opacity)
 {
-	Material* mat = new Material(amb,diff,spec,mirr,radiosity,shine);
+	Material* mat = new Material(amb,diff,spec,mirr,radiosity,shine, refractIndex, opacity);
 	materials.push_back(mat);
 
 }
@@ -597,7 +608,11 @@ const Color3f Scene::getLightColorContribution(const Intersection * i, Light& li
 			resultColor += calcDiffuse(lightColor, m->getDif(i->u,i->v), Lm, i->normal);
 			resultColor += calcSpec(lightColor, m->getSpec(i->u,i->v), m->getShine(), viewingRay.d, Lm, i->normal);
 		}	
-		else delete toLightIntersect;
+		else 
+		{
+			//TODO implement transparency?
+			delete toLightIntersect;
+		}
 		
 		return resultColor;
 	}
@@ -667,7 +682,44 @@ const Color3f Scene::Shade(const Intersection * i, Ray& viewingRay, short numRef
 	// Calculate GI
 	resultColor += addGIComponent(i, numReflections, giBounces);
 	
+	// Calculate refraction
+	// m, 
+	float opacity = m->getOpacity();
+	if (opacity < 1-FLT_EPSILON)
+	{
+		float rIndex = m->getRefractionIndex();
+		Vec3f refractDir = refractVec(viewingRay.d, i->normal, rIndex);
+		Ray refractRay = Ray(Pnt3f(i->loc), refractDir, bias, FLT_MAX);
+		//std::cout << "Calculating refraction\n";
+		Color3f result = TraceRay(refractRay,numReflections,giBounces); // TODO weigh refraction? ///Color3f(1.0f, 0.f, 0.f);
+		resultColor = result + resultColor*opacity; 
+	}
+	
 	return resultColor;
+}
+
+const Vec3f Scene::refractVec(const Vec3f& incidentVec, const Vec3f& normal, float rIndex)
+{
+	float c1 = -Vec3f::Dot(normal, incidentVec);
+	Vec3f Rl = incidentVec + (2 * normal * c1 );
+	
+	// Determine change in refraction index
+	float rOrigMedium;
+	float rNewMedium;
+	if (c1 > 0.f) // if leaving
+	{
+		rOrigMedium = rIndex; // original medium
+		rNewMedium = 1.f; // new medium
+	}
+	else // if entering
+	{
+		rOrigMedium = 1.f;
+		rNewMedium  = rIndex;
+	}
+	float r = rNewMedium / rOrigMedium;
+	float c2 = sqrtf(1 - r*r * (1-c1*c1));
+	Vec3f result = (r * incidentVec) + (r * c1 - c2) * normal;
+	return result;
 }
 
 const Vec2f Random2DDir()

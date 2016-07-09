@@ -9,7 +9,7 @@ Material::Material(float ra, float ga, float ba,
 				   float rs, float gs, float bs,
 				   float rr, float gr, float br,
 				   float re, float ge, float be,
-				   float shininess)
+				   float shininess, float refractIndex, float opac)
 {
 	a = Color3f(ra, ga, ba);
 	d = Color3f(rd, gd, bd);
@@ -18,13 +18,14 @@ Material::Material(float ra, float ga, float ba,
 	rad = Color3f(re, ge, be);
 	
 	shine = shininess;
-	
+	refractionIndex = refractIndex;
+	opacity = opac;
 
 	initializeDefaultTextures();
 
 }
 
-Material::Material(const Color3f& ambient, const Color3f& diffuse, const Color3f& specular, const Color3f& reflectance, const Color3f& radiosity, float shininess)
+Material::Material(const Color3f& ambient, const Color3f& diffuse, const Color3f& specular, const Color3f& reflectance, const Color3f& radiosity, float shininess, float refractIndex, float opac)
 {
 	a = Color3f(ambient);
 	d = Color3f(diffuse);
@@ -33,7 +34,9 @@ Material::Material(const Color3f& ambient, const Color3f& diffuse, const Color3f
 	rad = Color3f(radiosity);
 
 	shine = shininess;
-
+	refractionIndex = refractIndex;
+	opacity = opac;
+	
 	initializeDefaultTextures();
 }
 
@@ -118,9 +121,19 @@ Color3f Material::getRadiosity(float u, float v) const
 	}
 }
 
-float Material::getShine()
+float Material::getShine() const
 {
 	return shine;
+}
+
+float Material::getOpacity() const
+{
+	return opacity;
+}
+
+float Material::getRefractionIndex() const
+{
+	return refractionIndex;
 }
 
 

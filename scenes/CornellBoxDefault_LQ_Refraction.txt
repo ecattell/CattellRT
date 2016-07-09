@@ -1,0 +1,95 @@
+Camera   0 0 40   0 1 0   0 0 9.9  36.5   1
+Output   512   512   output/CornellBoxDefault_LQ_Refraction.tif
+BounceDepth   1
+ShadowBias 0.005
+#GIDepth       1
+#GISamples     2
+
+## Lights ##
+AmbientLight   0.05 0.05 0.05
+#PointLight   0 9 0   1 1 1
+#PointLight   0 3 10   1 1 1
+AreaLight -3 9.2 -3     6 0 0          0 0 6      2           .08      .8 .8 .8
+
+
+## The Box ##
+
+Material   1 1 1   1 1 1   0 0 0   0 0 0   1 1 1   0
+
+# Floor
+MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0
+MTriangle    10 -10 10   10 -10 -10   -10 -10  10   1 1  1 0  0 1
+
+
+# Ceiling light
+Material   100 100 100     1 1 1   0 0 0     0 0 0      1 1 1          1
+#W1
+Triangle   -2 10 -2  2 10 -2  -2 10 2
+#W2
+Triangle   2 10 2    -2 10 2   2 10 -2
+
+# Ceiling
+#          ra,ga,ba, rd,gd,bd,     rs,gs,bs, rr,gr,br, rRad,gRad,bRad, shine
+Material   1 1 1     0.8 0.8 0.8   0 0 0     0 0 0      1 1 1          1
+#Triangle   -10 10 -10 10 10 -10 -10 10 10 
+#Triangle   -10 10 10 10 10 -10  10 10 10
+#A
+Triangle   -10 10 -10 10 10 -10 -10 10 -2
+#B
+Triangle   10 10 -10   10 10 -2    -10 10 -2
+#C
+Triangle   -10 10 -2    -2 10 -2   -10 10 2
+#D
+Triangle  -10 10 2     -2 10 -2    -2 10 2
+#E
+Triangle   2 10 -2   10 10 -2    2 10 2
+#F
+Triangle   10 10 -2    10 10 2    2 10 2
+#G
+Triangle   -10 10 2    10 10 2     -10 10 10
+#H
+Triangle   10 10 2   10 10 10    -10 10 10
+
+# A -2 10 2         C 2 10 2
+# B -2 10 -2        D 2 10 -2
+
+# Front wall
+Triangle   -10 -10 -10   10 10 -10   -10 10 -10
+Triangle   10 -10 -10   10 10 -10   -10 -10 -10
+
+# Red wall
+Material   1 0 0   1 0 0   0 0 0   0 0 0   1 1 1   0
+Triangle   -10 10 10   -10 -10 -10   -10 10 -10
+Triangle   -10 -10 10   -10 -10 -10   -10 10 10
+
+# Blue wall
+Material   0 0 1   0 0 1   0 0 0   0 0 0   1 1 1   0
+Triangle   10 -10 10   10 10 -10   10 -10 -10
+Triangle   10 10 10   10 10 -10   10 -10 10
+
+
+
+## Stuff in the box ##
+
+# Diffuse Sphere
+#Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   1
+#Sphere   5 -6 1   4
+
+# Mirror Sphere
+#Material   1 1 1   0 0 0    .1 .1 .1   0.9 0.9 0.9   0 0 0  64
+#Sphere   -5 -6 -5   4
+
+# Refraction Sphere
+#       ambient   diffuse  specular reflection   radiance  shininess refractIndex opac
+rMaterial   1 1 1   0 0 0    1 1 1  1 1 1   0 0 0  64   1.5 .1
+Sphere   -5 0 10   2
+Sphere   0  0 10   2
+Sphere   5  0 10   2
+
+Sphere   -5 5 10   2
+Sphere   0  5 10   2
+Sphere   5  5 10   2
+
+Sphere   -5 -5 10   2
+Sphere   0  -5 10   2
+Sphere   5  -5 10   2
