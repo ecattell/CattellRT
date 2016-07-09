@@ -85,26 +85,23 @@ Ray Camera::generateViewRay(float x, float y)
 }
 
 Ray Camera::defocusRay(Ray& ray, int i, int j)
-{
-	Ray r = Ray(ray);
-
-	Pnt3f aim = r.e+r.d*focusDistance;
+{	
+	Pnt3f aim = ray.e+ray.d*focusDistance;
 
 	// Stratified sampling
 	float xJitter = DOFPixWidth*i + (randFloat()-1)*DOFPixWidth;
 	float yJitter = DOFPixHeight*j + (randFloat()-1)*DOFPixHeight;
 	
 	// Jitter start position
-	r.e.x = r.e.x + xJitter;
-	r.e.y = r.e.y + yJitter;
+	Pnt3f newOrigin = Pnt3f(ray.e.x + xJitter, ray.e.y + yJitter, ray.e.z);
 
 	// Recalculate direction
-	r.d = aim-r.e;
+	Vec3f newDir = aim-newOrigin;
 
 	// Renormalize
-	r.d.Normalize();
+	newDir.Normalize();
 
-	return r;
+	return Ray(newOrigin,newDir,ray.min,ray.max);
 }
 
 void Camera::Pan(Pnt3f& _look)

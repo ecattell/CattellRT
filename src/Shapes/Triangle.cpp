@@ -46,6 +46,7 @@ void Triangle::Initialize(const Matrix4f& t)
 	// Precompute normal, since we're not interpolating between vertices
 	N = Vec3f::Cross(ab,ac);
 	N.Normalize();
+	cacheBbox();
 }
 
 Triangle::~Triangle(void)
@@ -57,6 +58,12 @@ Triangle::~Triangle(void)
 // EXPANSION TODO I can represent vertices as a vertices struct instead of as points so that normals can be interpolated, etc
 Intersection* Triangle::hit(const Ray& r)
 {
+	/* Use this to check bounding box before triangle?
+	if (!this->bbox->rayCollides(r))
+	{
+		return NULL;
+	}*/
+
 	if (!SameDirection(r.d,N)) return NULL; // Don't return backface
 
 	Intersection* i;
@@ -127,4 +134,46 @@ Intersection* Triangle::hit(const Ray& r)
 	// Return intersection struct
 	i = new Intersection(t, r.e+t*r.d, N, parent, u, v);
 	return i;
+}
+
+void Triangle::cacheBbox()
+{
+	float minX = FLT_MAX;
+	float minY = FLT_MAX;
+	float minZ = FLT_MAX;
+	
+	float maxX = -FLT_MAX;
+	float maxY = -FLT_MAX;
+	float maxZ = -FLT_MAX;
+	
+	// X
+	if (a.x < minX) { minX = a.x; }
+	if (b.x < minX) { minX = b.x; }
+	if (c.x < minX) { minX = c.x; }
+
+	if (a.x > maxX) { maxX = a.x; }
+	if (b.x > maxX) { maxX = b.x; }
+	if (c.x > maxX) { maxX = c.x; }
+
+	// Y
+	if (a.y < minY) { minY = a.y; }
+	if (b.y < minY) { minY = b.y; }
+	if (c.y < minY) { minY = c.y; }
+
+	if (a.y > maxY) { maxY = a.y; }
+	if (b.y > maxY) { maxY = b.y; }
+	if (c.y > maxY) { maxY = c.y; }
+
+	// Z
+	if (a.z < minZ) { minZ = a.z; }
+	if (b.z < minZ) { minZ = b.z; }
+	if (c.z < minZ) { minZ = c.z; }
+
+	if (a.z > maxZ) { maxZ = a.z; }
+	if (b.z > maxZ) { maxZ = b.z; }
+	if (c.z > maxZ) { maxZ = c.z; }
+
+	Pnt3f minPnt = Pnt3f(minX, minY, minZ);
+	Pnt3f maxPnt = Pnt3f(maxX, maxY, maxZ);
+	this->bbox = new BoundingBox(minPnt, maxPnt);
 }

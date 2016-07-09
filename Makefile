@@ -1,6 +1,5 @@
 # This is the makefile for my raytracer
 # Let me know if this runs into any issues on your system
-
 CC = g++
 
 WARN = -Wall
@@ -9,9 +8,7 @@ CCFLAGS = -c $(WARN)
 LDFLAGS =
 EXECUTABLE = RaytracerDemo
 
-SRCS = $(wildcard src/Cameras/*.cpp src/ImagePlanes/*.cpp src/ImageUtil/*.cpp src/Lights/*.cpp src/Main/*.cpp src/Materials/*.cpp src/MathUtil/*.cpp src/Objects/*.cpp src/Ray/*.cpp src/Sequence/*.cpp src/Scene/*.cpp src/Shapes/*.cpp src/Transform/*.cpp)
-
-#$(addprefix src/, $(wildcard Cameras/*.cpp ImagePlanes/*.cpp ImageUtil/*.cpp Lights/*.cpp Main/*.cpp Materials/*.cpp MathUtil/*.cpp Objects/*.cpp Ray/*.cpp Sequence/*.cpp Scene/*.cpp Shapes/*.cpp Transform/*.cpp))
+SRCS = $(wildcard src/Accelerators/*.cpp src/BoundingVolumes/*.cpp src/Cameras/*.cpp src/ImagePlanes/*.cpp src/ImageUtil/*.cpp src/Lights/*.cpp src/Main/*.cpp src/Materials/*.cpp src/MathUtil/*.cpp src/Objects/*.cpp src/Ray/*.cpp src/Sequence/*.cpp src/Scene/*.cpp src/Shapes/*.cpp src/Transform/*.cpp)
 
 OBJS  = $(addprefix obj/, $(subst /,_, $(subst src/,,$(SRCS:.cpp=.o))))
 
@@ -26,6 +23,14 @@ main: $(SRCS) $(EXECUTABLE)
 # Linker
 $(EXECUTABLE): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -o $@
+
+obj/Accelerators_%.o: src/Accelerators/%.cpp
+	@echo "Building $@"
+	@$(CC) $(CCFLAGS) -o $@ -c $<
+
+obj/BoundingVolumes_%.o: src/BoundingVolumes/%.cpp
+	@echo "Building $@"
+	@$(CC) $(CCFLAGS) -o $@ -c $<
 
 obj/Cameras_%.o: src/Cameras/%.cpp
 	@echo "Building $@"

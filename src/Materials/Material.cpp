@@ -90,7 +90,10 @@ Color3f Material::getDif(float u, float v) const
 
 Color3f Material::getSpec(float u, float v) const
 {
-	if (sTex == NULL) return s;
+	if (sTex == NULL)
+	{
+		return s;
+	}
 	else 
 	{
 		return sTex->Interpolate(u, v);

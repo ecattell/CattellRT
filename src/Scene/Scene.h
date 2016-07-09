@@ -9,6 +9,8 @@
 #include <string.h>
 
 #include "../MathUtil/RTMath.h"
+#include "../Accelerators/BVH.h"
+#include "../Accelerators/SimpleAccelerator.h"
 #include "../Shapes/Shape.h"
 #include "../Objects/SceneObject.h"
 #include "../Shapes/Sphere.h"
@@ -62,7 +64,7 @@ public:
 	short AASamples;
 
 	// GI
-	short GISamples;
+	short giSamples;
 	int giDepth;
 
 	// Contains sequence information
@@ -123,7 +125,9 @@ private:
 	// Instance variables
 	ImagePlane plane;
 	Camera cam;
-	vector<SceneObject*> objects; // TODO: This is a pointer because of my implementation of a shape/object circular reference. Can I change this?
+	//Accelerator* accelerator;
+	BVH accelerator;
+	vector<SceneObject*> objects;
 	vector<Material*> materials;
 
 	// Lights

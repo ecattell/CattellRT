@@ -9,6 +9,7 @@
  *
  */
 class Material;
+class Shape;
 
 class SceneObject
 {

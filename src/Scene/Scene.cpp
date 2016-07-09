@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sstream>
 
-
-
 Scene::Scene(std::string sceneFilename)
 {
 	cout << "Loading: " << sceneFilename << "\n";
@@ -213,22 +211,25 @@ void Scene::Parse(std::string sceneFilename)
 void Scene::BeganParsing()
 {
 	// TODO: These are no longer used
+	/*
 	vector<PointLight> pntLights = vector<PointLight>();
 	vector<DirectionalLight> dirLights = vector<DirectionalLight>();;
 	vector<AmbientLight> ambLights = vector<AmbientLight>();;
 	vector<AreaLight> areaLights = vector<AreaLight>();;
 	vector<SceneObject> objects = vector<SceneObject>();
 	vector<Material> materials = vector<Material>();
-
+	*/
 	MatrixStack mStack = MatrixStack(); // TODO: Why is matrixStack declared here again?
 	textures = TextureList();
 
 	// Set defaults
 	AASamples = 1;
+	giSamples = 0;
+	giDepth   = 0;
 	seq = Sequence(false);
 
 	// Used by window manager for displaying:
-	vector<string> fileNames = vector<string>(); // TODO: Why is filenames declared here again?
+	//vector<string> fileNames = vector<string>();
 
 	//TODO: In fact, why does it appear that everything is declared again?
 }
@@ -240,6 +241,9 @@ void Scene::FinishedParsing()
 
 	// Initialize camera
 	cam.Initialize(plane.getWidthSamples(),plane.getHeightSamples());
+	
+	// Initialize BVH
+	accelerator = BVH(this->objects, 'x');
 }
 
 void Scene::ParsedImageSequence(short numFrames, const Vec3f& distance, const Pnt3f& startLook, const Pnt3f& endLook)
@@ -290,7 +294,7 @@ void Scene::ParsedAASamples(short samples)
 
 void Scene::ParsedGISamples(short samples)
 {
-	GISamples = samples;
+	giSamples = samples;
 }
 
 void Scene::ParsedPushMatrix()
@@ -504,7 +508,6 @@ void Scene::RenderFrame()
 
 						// Generate extra samples for DOF
 						Ray viewRay = cam.generateViewRay(xPrime,yPrime);
-
 						if (cam.DOF == false) c += TraceRay(viewRay,0,0);
 						else {
 							for (int i = 0; i < cam.getSamples(); i++)
@@ -526,6 +529,9 @@ void Scene::RenderFrame()
 	}
 
 	cout << "Render complete\n\n";
+	int currTime  = time(NULL);
+	int elapsed   = currTime - startTime;
+	cout << "Time elapsed: " << elapsed << "\n";
 	Save(image, outputFilename);
 	fileNames.push_back(string(outputFilename));
 }
@@ -555,30 +561,7 @@ const Color3f Scene::TraceRay(Ray& r, short numReflections, short giBounces)
 // Also used when tracing shadow rays.
 Intersection* Scene::Intersect(const Ray& r)
 {
-	bool intersected = false;
-	// Iterate through each object
-	Intersection* i = NULL;
-
-	for(vector<SceneObject*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-
-
-		Shape * currShape = (*it)->s;
-		Intersection* currIntersect = currShape->hit(r);
-		// TODO: triangle already does this check. make sphere do this check and you can ignore it.
-		// if intersect hits something AND is within the min and max range of the ray
-		if(currIntersect != NULL && currIntersect->t < r.max && currIntersect->t > r.min)
-		{
-			// if intersect is closer than previous closest intersect, update previous
-			if (i == NULL || currIntersect->t < i->t)
-			{
-				delete i;
-				i = currIntersect;
-			}
-			else delete currIntersect;
-		}
-		else delete currIntersect;
-	}
-	return i;
+	return accelerator.hit(r);
 }
 
 // Calculates the color contribution of the given light
@@ -715,7 +698,7 @@ const Vec3f randomInHemisphere(Vec3f const &v){
 
 const Color3f Scene::addGIComponent(const Intersection * intersect, short numReflections, short giBounces)
 {
-	if (giBounces < giDepth) {
+	if (giSamples > 0 && giBounces < giDepth) {
 		giBounces++;
 
 		Color3f giColor = Color3f(0.0,0.0,0.0);
@@ -731,14 +714,14 @@ const Color3f Scene::addGIComponent(const Intersection * intersect, short numRef
 		
 		Color3f bouncedLight = Color3f(0.0,0.0,0.0);
 		// for each sample
-		for (int i = 0; i < GISamples; i++)
+		for (int i = 0; i < giSamples; i++)
 		{
 			//Get random direction in same hemisphere as normal
 			Vec3f dir = randomInHemisphere(hitNormal);			
 			Ray r = Ray ( intersect->loc, dir, bias, FLT_MAX );
 			bouncedLight += TraceRay(r, numReflections, giBounces);
 		}
-		bouncedLight = bouncedLight / GISamples;
+		bouncedLight = bouncedLight / giSamples;
 		
 		return radiosity*bouncedLight;
 	}
@@ -771,11 +754,12 @@ const Color3f Scene::addGIComponent(const Intersection * intersect, short numRef
 
 Color3f Scene::calcDiffuse(const Color3f& lightColor, const Color3f& diffuse, Vec3f Lm, Vec3f normal)
 {
-	return Color3f ( (diffuse * lightColor) * RTMax(Vec3f::Dot(Lm,normal),0.f) );
+	return Color3f ( (diffuse/Lm.Length() * lightColor) * RTMax(Vec3f::Dot(Lm,normal),0.f) );
 }
 
 Color3f Scene::calcSpec(const Color3f& lightColor, const Color3f& specular, float shine, Vec3f viewingRayDir, Vec3f Lm, Vec3f normal)
-{
+{	
+	// Uses blinn-phong for specular
 	Vec3f h = (Lm-viewingRayDir);
 	h.Normalize();
 	return Color3f( specular * lightColor * pow( RTMax(0.f,Vec3f::Dot(normal,h)), shine) );

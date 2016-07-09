@@ -1,12 +1,15 @@
 #include "Ray.h"
 
-// Represents a 2d parametric line
+// Represents a parametric line
 Ray::Ray(const Pnt3f& _e, const Vec3f& _d, float _min, float _max)
 {
 	e = Pnt3f(_e);
 	d = Vec3f(_d);
 	min = _min;
 	max = _max;
+	
+	// Cache this to optimize bbox calculations
+	multInverseDir = Pnt3f(1.0f / d.x, 1.0f / d.y, 1.0f / d.z);
 }
 
 /*

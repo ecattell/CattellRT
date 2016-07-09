@@ -21,9 +21,10 @@ class Ray
 {
 public:
 	Ray(const Pnt3f& e, const Vec3f& d, float min, float max);
-	//Ray(const Ray& _r);
+	Ray(const Ray& _r);
 	virtual ~Ray(void);
 	Pnt3f e;
+	Pnt3f multInverseDir;
 	Vec3f d;
 	float min;
 	float max;

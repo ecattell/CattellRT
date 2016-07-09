@@ -1,4 +1,5 @@
 #include "Sphere.h"
+#include <iostream>
 
 Sphere::Sphere(const Pnt3f& center, float radius, const Matrix4f& _t)
 {
@@ -8,6 +9,7 @@ Sphere::Sphere(const Pnt3f& center, float radius, const Matrix4f& _t)
 	Ti = T.Inverse();
 	Tti = Ti.Transpose();
 	Tt = T.Transpose();
+	cacheBbox();
 }
 
 Sphere::~Sphere(void)
@@ -17,8 +19,7 @@ Sphere::~Sphere(void)
 // Detects if ray intersects sphere.
 // TODO: Manage special case for transformed spheres by transforming vector.
 Intersection* Sphere::hit(const Ray& r)
-{
-
+{		
 	// Transform vector to use inverse of sphere's transformation matrix
 
 	Vec3f e = Matrix4f::pntMult(Ti,r.e);
@@ -43,5 +44,23 @@ Intersection* Sphere::hit(const Ray& r)
 	n.Normalize();
 
 	if (!SameDirection(d,n)) return NULL;  // Backface culling
+	
+	if (t > r.max || t < r.min) return NULL; // check range
 	return new Intersection(t, p, n, parent);
+}
+
+void Sphere::cacheBbox()
+{	
+	float minX = cntr.x-rad;
+	float minY = cntr.y-rad;
+	float minZ = cntr.z-rad;
+	
+	float maxX = cntr.x+rad;
+	float maxY = cntr.y+rad;
+	float maxZ = cntr.z+rad;
+
+	Pnt3f minPnt = Pnt3f(minX, minY, minZ);
+	Pnt3f maxPnt = Pnt3f(maxX, maxY, maxZ);
+
+	this->bbox = new BoundingBox(minPnt, maxPnt);
 }

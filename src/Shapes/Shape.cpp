@@ -1,7 +1,4 @@
 #include "Shape.h"
-#include <iostream>
-
-using namespace std;
 
 Shape::Shape(void)
 {
@@ -20,4 +17,9 @@ void Shape::setSceneObject(SceneObject* _parent)
 SceneObject* Shape::getSceneObject()
 {
 	return parent;
+}
+
+BoundingBox* Shape::getBbox()
+{
+	return bbox;
 }
