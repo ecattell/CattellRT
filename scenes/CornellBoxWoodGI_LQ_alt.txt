@@ -1,13 +1,17 @@
-Output   512   512   output/CornellBoxWoodGI_MQ.tif
-Camera   0 0 39   0 1 0   0 0 9.9  36.5 1
+Output   512   512   output/CornellBoxWoodGI_LQ_alt.tif
+#          eye      upvec   look     fov    aspect ratio
+#Camera    0 0 5   0 1 0   0 0 9.9  120 1
+#Camera   0 0 39   0 1 0   0 0 9.9  36.5 1
+Camera   0 0 9.99   0 1 0   0 0 9.9  100 1
+
 # numDOFSamples apertureSize, focPntX, focPntY, focPntZ
-Focus  1 2  -5 -6 -3
+Focus  1 1  0 0 -2 #-5 -6 -3
 
 BounceDepth   1
 GIDepth       1
 ShadowBias 0.0005
-GISamples 4
-AASamples 1
+GISamples 8
+AASamples 1#2
 
 ## Lights ##
 #          px,py,pz, v1x,v1y,v1z, v2x,v2y,v2z, numSamples, falloff, r, g, b
@@ -30,12 +34,18 @@ MTriangle    10 -10 10   10 -10 -10   -10 -10  10   1 1  1 0  0 1
 Material   1 1 1     0.8 0.8 0.8   0 0 0     0 0 0      1 1 1          1
 
 # Ceiling
+#Triangle   -10 10 -10 10 10 -10 -10 10 10 
+#Triangle   -10 10 10 10 10 -10  10 10 10
 Triangle   -10 10 -10 10 10 -10 -10 10 10 
 Triangle   -10 10 10 10 10 -10  10 10 10
 
 # Front wall
 Triangle   -10 -10 -10   10 10 -10   -10 10 -10
 Triangle   10 -10 -10   10 10 -10   -10 -10 -10
+
+# Back wall
+Triangle   -10 10 10   10 10 10  -10 -10 10    
+Triangle   -10 -10 10  10 10 10  10 -10 10     
 
 # Red wall
 Material   1 0 0   1 0 0   0 0 0   0 0 0   1 1 1   0
@@ -53,8 +63,14 @@ Triangle   10 10 10   10 10 -10   10 -10 10
 
 # Diffuse Sphere
 Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   1
-Sphere   5 -6 1   4
+Sphere   5 0 -5  4
 
 # Mirror Sphere
 Material   1 1 1   0 0 0    1 1 1   0.9 0.9 0.9   0 0 0  64
 Sphere   -5 -6 -5   4
+
+Sphere   0 -8 -2   1
+Sphere   0 -4 -2   1
+Sphere   0  0 -2   1
+Sphere   0  4 -2   1
+Sphere   0  8 -2   1

@@ -1,13 +1,15 @@
 Output   512   512   output/CornellBoxWoodGI_LQ.tif
+#          eye      upvec   look     fov    aspect ratio
 Camera   0 0 39   0 1 0   0 0 9.9  36.5 1
+
 # numDOFSamples apertureSize, focPntX, focPntY, focPntZ
-Focus  1 1  -5 -6 -3
+Focus  1 1  0 0 -2
 
 BounceDepth   1
 GIDepth       1
 ShadowBias 0.0005
-GISamples 2
-AASamples 1
+GISamples 8
+AASamples 1#2
 
 ## Lights ##
 #          px,py,pz, v1x,v1y,v1z, v2x,v2y,v2z, numSamples, falloff, r, g, b
@@ -56,5 +58,5 @@ Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   1
 Sphere   5 -6 1   4
 
 # Mirror Sphere
-Material   1 1 1   0 0 0   0 0 0   0.9 0.9 0.9   1 1 1   1
+Material   1 1 1   0 0 0    1 1 1   0.9 0.9 0.9   0 0 0  64
 Sphere   -5 -6 -5   4

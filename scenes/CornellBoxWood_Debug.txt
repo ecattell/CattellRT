@@ -1,17 +1,18 @@
-Output   512   512   output/CornellBoxWoodGI_MQ.tif
+Output   1024   1024   output/CornellBoxWood_Debug.tif
 Camera   0 0 39   0 1 0   0 0 9.9  36.5 1
 # numDOFSamples apertureSize, focPntX, focPntY, focPntZ
-Focus  1 2  -5 -6 -3
+Focus  2 2  -5 -6 -3
 
 BounceDepth   1
-GIDepth       1
+GIDepth       3
 ShadowBias 0.0005
-GISamples 4
+GISamples 8
 AASamples 1
 
 ## Lights ##
 #          px,py,pz, v1x,v1y,v1z, v2x,v2y,v2z, numSamples, falloff, r, g, b
-AreaLight -3 9 -3     6 0 0          0 0 6      2           .08      .8 .8 .8
+AreaLight -3 9 -3   6 0 0       0 0 6          3           .08      .5 .5 .5
+#PointLight   0 9 0   .5 .5 .5
 
 
 
@@ -26,12 +27,29 @@ Texture Ambient textures/wood.bmp
 MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0
 MTriangle    10 -10 10   10 -10 -10   -10 -10  10   1 1  1 0  0 1
 
+
 #          ra,ga,ba, rd,gd,bd,     rs,gs,bs, rr,gr,br, rRad,gRad,bRad, shine
 Material   1 1 1     0.8 0.8 0.8   0 0 0     0 0 0      1 1 1          1
 
 # Ceiling
 Triangle   -10 10 -10 10 10 -10 -10 10 10 
 Triangle   -10 10 10 10 10 -10  10 10 10
+#A
+#Triangle   -10 10 -10 10 10 -10 -10 10 -2
+#B
+#Triangle   10 10 -10   10 10 -2    -10 10 -2
+#C
+#Triangle   -10 10 -2    -2 10 -2   -10 10 2
+#D
+#Triangle  -10 10 2     -2 10 -2    -2 10 2
+#E
+#Triangle   2 10 -2   10 10 -2    2 10 2
+#F
+#Triangle   10 10 -2    10 10 2    2 10 2
+#G
+#Triangle   -10 10 2    10 10 2     -10 10 10
+#H
+#Triangle   10 10 2   10 10 10    -10 10 10
 
 # Front wall
 Triangle   -10 -10 -10   10 10 -10   -10 10 -10

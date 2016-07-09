@@ -1,33 +1,25 @@
-Output   512   512   output/CornellBoxWoodGI_MQ.tif
-Camera   0 0 39   0 1 0   0 0 9.9  36.5 1
-# numDOFSamples apertureSize, focPntX, focPntY, focPntZ
-Focus  1 2  -5 -6 -3
+# EYE:ex,ey,ez UP:ux,uy,uz AT:lx,ly,lz >> fov >> aspect;
+Camera   0 0 40   0 1 0   0 0 9.9  36.5   1
+# numFrames >> distanceX >> distanceY >> distanceZ >> startLookX >> startLookY >> startLookZ >> endLookX >> endLookY >> endLookZ
+ImageSequence 240    0 0 -20     0 0 10    -2 -6 -5;
 
+Output   720   720   output/CornellBoxDefault_LQ.tif
 BounceDepth   1
-GIDepth       1
-ShadowBias 0.0005
-GISamples 4
-AASamples 1
+ShadowBias 0.005
 
 ## Lights ##
-#          px,py,pz, v1x,v1y,v1z, v2x,v2y,v2z, numSamples, falloff, r, g, b
-AreaLight -3 9 -3     6 0 0          0 0 6      2           .08      .8 .8 .8
+AmbientLight   0.05 0.05 0.05
+PointLight   0 9 0   1 1 1
 
 
 
 ## The Box ##
 
-Material   1 1 1   0.8 0.8 0.8   .15 .15 .15   .08 .08 .08   1 1 1  .8
-Texture Diffuse textures/wood.bmp
-Texture Ambient textures/wood.bmp
-
+Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   0
 
 # Floor
 MTriangle   -10 -10 10   10 -10 -10   -10 -10 -10   0 1  1 0  0 0
 MTriangle    10 -10 10   10 -10 -10   -10 -10  10   1 1  1 0  0 1
-
-#          ra,ga,ba, rd,gd,bd,     rs,gs,bs, rr,gr,br, rRad,gRad,bRad, shine
-Material   1 1 1     0.8 0.8 0.8   0 0 0     0 0 0      1 1 1          1
 
 # Ceiling
 Triangle   -10 10 -10 10 10 -10 -10 10 10 
@@ -52,7 +44,7 @@ Triangle   10 10 10   10 10 -10   10 -10 10
 ## Stuff in the box ##
 
 # Diffuse Sphere
-Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   1
+Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   0
 Sphere   5 -6 1   4
 
 # Mirror Sphere

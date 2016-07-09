@@ -2,11 +2,14 @@ Camera   0 0 40   0 1 0   0 0 9.9  36.5   1
 Output   512   512   output/CornellBoxDefault_LQ.tif
 BounceDepth   1
 ShadowBias 0.005
+BounceDepth   1
+GIDepth       1
+GISamples     4
 
 ## Lights ##
 AmbientLight   0.05 0.05 0.05
 PointLight   0 9 0   1 1 1
-
+#PointLight   0 3 10   1 1 1
 
 
 ## The Box ##
@@ -44,5 +47,6 @@ Material   1 1 1   0.8 0.8 0.8   0 0 0   0 0 0   1 1 1   0
 Sphere   5 -6 1   4
 
 # Mirror Sphere
-Material   1 1 1   0 0 0   0 0 0   0.9 0.9 0.9   1 1 1   0
+#       ambient   diffuse  specular reflection   radiance  shininess
+Material   1 1 1   0 0 0    1 1 1   0.9 0.9 0.9   0 0 0  64
 Sphere   -5 -6 -5   4
